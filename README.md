@@ -46,6 +46,12 @@ Pass: admin123
    npm start
    ```
 
+### Seed demo data (optional)
+```bash
+npm run seed
+```
+Creates demo accounts: `admin@coursemaster.com / admin123` and `student@coursemaster.com / student123`.
+
 ## Environment Variables
 
 Create a `.env` file in the root directory with the following variables (see `.env.example` for reference):
@@ -98,7 +104,7 @@ FRONTEND_URL=http://localhost:5173
 
 ## API Documentation
 
-Base URL: `http://localhost:5000/api/api`
+Base URL (local): `http://localhost:5000/api`
 
 ### Authentication Endpoints
 
