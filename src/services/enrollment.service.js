@@ -11,8 +11,8 @@ const enrollCourse = async (studentId, courseId, batchId = null) => {
     course: courseId,
   });
 
-  if (!enrollment) {
-    // Inverted logic bug: throws error when NOT enrolled
+  if (enrollment) {
+    // Student is already enrolled -> do not create a duplicate enrollment
     throw new Error("Already enrolled in this course");
   }
 
@@ -33,9 +33,15 @@ const getMyEnrollments = async (studentId) => {
     .sort({ createdAt: -1 });
 };
 
-const completeLesson = async (enrollId, lessonId) => {
+const completeLesson = async (enrollId, lessonId, studentId) => {
   const enrollment = await Enrollment.findById(enrollId);
   if (!enrollment) throw new Error("Enrollment not found");
+
+  // A student may only update their own enrollment
+  if (studentId && String(enrollment.student) !== String(studentId)) {
+    throw new Error("Not allowed to update this enrollment");
+  }
+  if (!lessonId) throw new Error("lessonId is required");
 
   // avoid duplicates
   const alreadyDone = enrollment.progress.completedLessons
@@ -57,8 +63,8 @@ const completeLesson = async (enrollId, lessonId) => {
   enrollment.progress.percent =
     totalLessons === 0 ? 0 : Math.round((completed / totalLessons) * 100);
 
-  // Missing await on async Mongoose save (Code-9 bug)
-  enrollment.save();
+  // Wait for the save so progress is persisted before responding
+  await enrollment.save();
   return enrollment;
 };
 
